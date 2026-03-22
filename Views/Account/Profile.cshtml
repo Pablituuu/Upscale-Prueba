@@ -1,0 +1,305 @@
+@using UpscaleWeb.Models
+@model UsuariosDetalle
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil de Usuario - Upscale</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
+</head>
+<body class="bg-light d-flex flex-column" style="min-height: 100vh; overflow-x: hidden;">
+
+    <!-- Sidebar -->
+    <partial name="_Sidebar" />
+
+    <!-- Header -->
+    <partial name="_HeaderRed" model="Model" />
+
+    <!-- Área de Contenido Principal -->
+    <div class="main-profile-content flex-grow-1 d-flex flex-column" style="min-height: calc(100vh - 60px); padding: 0 !important;">
+        
+        <div class="content-padding flex-grow-1" style="padding: 30px 50px;">
+            <p class="text-muted small mb-1">Perfil de usuario</p>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fs-4 fw-bold m-0" style="color: #333;">Perfil de usuario</h1>
+            
+            @if (User.Identity?.Name == "admin")
+            {
+                <a href="/Admin/Users" class="btn text-white fw-bold rounded-pill px-4" style="background-color: #2B58A4;">
+                    <i class="bi bi-gear-fill me-2"></i> Gestión de Usuarios
+                </a>
+            }
+        </div>
+
+            <!-- Tarjeta Principal -->
+            <div class="profile-main-card border-0 mb-5">
+                
+                <div class="d-flex align-items-center gap-4 mb-5 flex-wrap">
+                    <!-- AVATAR EDITABLE -->
+                    <div class="position-relative avatar-main-container" style="cursor: pointer;" onclick="document.getElementById('avatarInput').click()">
+                        <div class="avatar-main shadow-sm overflow-hidden d-flex align-items-center justify-content-center" id="avatarDisplay">
+                            @if (!string.IsNullOrEmpty(Model.FotoUrl)) {
+                                <img src="@Model.FotoUrl" id="avatarImg" style="width: 100%; height: 100%; object-fit: cover;">
+                            } else {
+                                <i class="bi bi-person h1 mb-0 opacity-25"></i>
+                            }
+                        </div>
+                        <div class="avatar-hover-icon position-absolute top-50 start-50 translate-middle d-none text-white">
+                            <i class="bi bi-camera shadow" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <input type="file" id="avatarInput" class="d-none" accept="image/*" onchange="uploadPhoto()">
+                    </div>
+
+                    <div>
+                        <p class="h4 fw-bold mb-1">
+                            @Model.NombresCompletoCabecera
+                            <span class="ms-2 badge bg-success bg-opacity-10 text-success fs-6 fw-semibold" style="padding: 4px 12px; border-radius: 20px;">@(Model.Estado == true ? "Activo" : "Inactivo")</span>
+                        </p>
+                        <p class="text-secondary fw-semibold mb-0" style="font-size: 0.95rem;">@Model.Rol</p>
+                        <p class="text-muted small mb-0">@Model.Entidad</p>
+                    </div>
+                </div>
+
+                <div class="nav-tabs-profile">
+                    <div class="tab-link active">Información básica</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Nombres</label>
+                        <div class="info-field-box">@Model.Nombres</div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Primer Apellido</label>
+                        <div class="info-field-box">@Model.PrimerApellido</div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Segundo Apellido</label>
+                        <div class="info-field-box">@Model.SegundoApellido</div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Tipo de Documento de Identidad</label>
+                        <div class="info-field-box">@Model.TipoDocumento</div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">N° de Documento de Identidad</label>
+                        <div class="info-field-box">@Model.NumeroDocumento</div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Fecha de nacimiento</label>
+                        <div class="info-field-box">@Model.FechaNacimiento?.ToString("dd / MM / yyyy")</div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Nacionalidad</label>
+                        <div class="info-field-box">@Model.Nacionalidad</div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Sexo</label>
+                        <div class="info-field-box">@Model.Sexo</div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Correo electrónico principal</label>
+                        <div class="info-field-box d-flex justify-content-between align-items-center" id="container-email">
+                            <span id="text-email" class="text-truncate" style="max-width: 80%;">@Model.EmailPrincipal</span>
+                            <input type="email" id="input-email" class="form-control form-control-sm d-none mx-1" value="@Model.EmailPrincipal">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-x-circle fs-6 text-danger d-none" id="cancel-email" style="cursor: pointer;" onclick="finishEdit('email')"></i>
+                                <i class="bi bi-pencil fs-6 text-primary" id="icon-email" style="cursor: pointer;" onclick="toggleEdit('email')"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Correo electrónico secundario</label>
+                        <div class="info-field-box d-flex justify-content-between align-items-center" id="container-emailSec">
+                            <span id="text-emailSec" class="text-truncate" style="max-width: 80%;">@Model.EmailSecundario</span>
+                            <input type="email" id="input-emailSec" class="form-control form-control-sm d-none mx-1" value="@Model.EmailSecundario">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-x-circle fs-6 text-danger d-none" id="cancel-emailSec" style="cursor: pointer;" onclick="finishEdit('emailSec')"></i>
+                                <i class="bi bi-pencil fs-6 text-primary" id="icon-emailSec" style="cursor: pointer;" onclick="toggleEdit('emailSec')"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Teléfono Móvil</label>
+                        <div class="info-field-box d-flex justify-content-between align-items-center" id="container-telefono">
+                            <span id="text-telefono">@Model.TelefonoMovil</span>
+                            <input type="tel" id="input-telefono" class="form-control form-control-sm d-none mx-1" value="@Model.TelefonoMovil" oninput="this.value = this.value.replace(/[^0-9+-\s]/g, '')">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-x-circle fs-6 text-danger d-none" id="cancel-telefono" style="cursor: pointer;" onclick="finishEdit('telefono')"></i>
+                                <i class="bi bi-pencil fs-6 text-primary" id="icon-telefono" style="cursor: pointer;" onclick="toggleEdit('telefono')"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Teléfono secundario</label>
+                        <div class="info-field-box d-flex justify-content-between align-items-center" id="container-telefonoSec">
+                            <span id="text-telefonoSec">@Model.TelefonoSecundario</span>
+                            <input type="tel" id="input-telefonoSec" class="form-control form-control-sm d-none mx-1" value="@Model.TelefonoSecundario" oninput="this.value = this.value.replace(/[^0-9+-\s]/g, '')">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-x-circle fs-6 text-danger d-none" id="cancel-telefonoSec" style="cursor: pointer;" onclick="finishEdit('telefonoSec')"></i>
+                                <i class="bi bi-pencil fs-6 text-primary" id="icon-telefonoSec" style="cursor: pointer;" onclick="toggleEdit('telefonoSec')"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Tipo de Contratación</label>
+                        <div class="info-field-box">@Model.TipoContratacion</div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <label class="fw-bold small mb-2 text-dark opacity-75">Fecha de contratación</label>
+                        <div class="info-field-box">@Model.FechaContratacion?.ToString("dd / MM / yyyy")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="bg-white border-top py-2 px-3 px-md-5 mt-auto footer-responsive">
+            <partial name="_FooterLogos" />
+        </footer>
+
+    </div>
+
+    <partial name="_SoporteToasts" />
+    <partial name="_SessionTimeout" />
+
+    <style>
+        @@media (max-width: 768px) {
+            .header-red-top { margin-left: 0 !important; }
+            .content-padding { padding: 20px !important; }
+            .profile-main-card { padding: 25px; }
+            .h2 { font-size: 1.5rem !important; }
+            .footer-responsive { text-align: center; }
+        }
+        .header-red-top { margin-left: 70px; }
+        .main-profile-content { 
+            margin-left: 70px; 
+            background-image: url('/img/backgrounds/Illustration.png'); 
+            background-size: 100% 50%; /* Ocupa solo la mitad del alto */
+            background-position: center bottom; 
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .editing-mode { border: 1.5px solid var(--active-blue) !important; background: #fff !important; }
+        
+        .avatar-main-container:hover .avatar-hover-icon { display: block !important; }
+        .avatar-main-container:hover #avatarDisplay { opacity: 0.7; transition: 0.3s; }
+        .avatar-main { width: 100px; height: 100px; background: #eef7ff; border-radius: 50%; color: #007bff; position: relative; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        async function uploadPhoto() {
+            const fileInput = document.getElementById('avatarInput');
+            if (fileInput.files.length === 0) return;
+
+            const formData = new FormData();
+            formData.append('profilePic', fileInput.files[0]);
+
+            const avatarDisplay = document.getElementById('avatarDisplay');
+            avatarDisplay.innerHTML = '<div class="spinner-border text-primary spinner-border-sm"></div>';
+
+            try {
+                const response = await fetch('/Account/UploadProfileImage', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    avatarDisplay.innerHTML = `<img src="${result.url}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    showSystemNotification("Foto actualizada.", "success");
+                } else {
+                    alert("Error: " + result.message);
+                    location.reload();
+                }
+            } catch (e) { location.reload(); }
+        }
+
+        function toggleEdit(field) {
+            const textSpan = document.getElementById(`text-${field}`);
+            const inputField = document.getElementById(`input-${field}`);
+            const icon = document.getElementById(`icon-${field}`);
+            const cancelBtn = document.getElementById(`cancel-${field}`);
+            const container = document.getElementById(`container-${field}`);
+
+            if (inputField.classList.contains('d-none')) {
+                textSpan.classList.add('d-none');
+                inputField.classList.remove('d-none');
+                inputField.focus();
+                icon.className = 'bi bi-check2-circle text-success fs-6';
+                cancelBtn.classList.remove('d-none');
+                container.classList.add('editing-mode');
+            } else {
+                const newValue = inputField.value.trim();
+                
+                if (field === 'email' || field === 'emailSec') {
+                    if (newValue !== "") {
+                        const pattern = '^[^\\x40\\s]+\\x40[^\\x40\\s]+\\.[^\\x40\\s]+$';
+                        if (!new RegExp(pattern).test(newValue)) {
+                            showSystemNotification("Email inválido.", "error"); return;
+                        }
+                    }
+                } else if (field === 'telefono' || field === 'telefonoSec') {
+                    if (newValue !== "" && !new RegExp('^\\+?[0-9\\s-]{7,15}$').test(newValue)) {
+                        showSystemNotification("Teléfono inválido.", "error"); return;
+                    }
+                }
+                saveData(field, newValue);
+            }
+        }
+
+        async function saveData(field, value) {
+            const icon = document.getElementById(`icon-${field}`);
+            const cancelBtn = document.getElementById(`cancel-${field}`);
+            icon.className = 'spinner-border spinner-border-sm text-success me-1';
+            icon.onclick = null;
+            cancelBtn.classList.add('d-none');
+
+            try {
+                const fd = new URLSearchParams(); fd.append('field', field); fd.append('value', value);
+                const r = await fetch('/Account/UpdateContact', { method: 'POST', body: fd });
+                const res = await r.json();
+                if (res.success) {
+                    document.getElementById(`text-${field}`).innerText = value;
+                    showSystemNotification("Guardado.", "success");
+                } else {
+                    showSystemNotification("Error.", "error");
+                }
+            } catch (e) { showSystemNotification("Error de red.", "error"); }
+            finally { finishEdit(field); }
+        }
+
+        function finishEdit(field) {
+            const textSpan = document.getElementById(`text-${field}`);
+            const inputField = document.getElementById(`input-${field}`);
+            const icon = document.getElementById(`icon-${field}`);
+            const cancelBtn = document.getElementById(`cancel-${field}`);
+            const container = document.getElementById(`container-${field}`);
+            inputField.value = textSpan.innerText;
+            textSpan.classList.remove('d-none');
+            inputField.classList.add('d-none');
+            icon.className = 'bi bi-pencil fs-6 text-primary';
+            icon.onclick = () => toggleEdit(field);
+            cancelBtn.classList.add('d-none');
+            container.classList.remove('editing-mode');
+        }
+    </script>
+</body>
+</html>

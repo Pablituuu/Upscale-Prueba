@@ -1,0 +1,77 @@
+<!-- Contenedor general de Toasts (Apilados) -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+    
+    <!-- Toast de Notificaciones del Sistema (Mejorado) -->
+    <div id="systemToast" class="toast hide shadow-lg border-0 mb-3" role="alert" aria-live="assertive" aria-atomic="true" style="border-radius: 8px; overflow: hidden;">
+        <div id="systemToastWrapper" class="d-flex align-items-center p-3" style="border-left: 6px solid #0056b3; background-color: #e7f1ff;">
+            <div class="me-3">
+                <i id="systemToastIcon" class="bi fs-4" style="color: #0056b3;"></i>
+            </div>
+            <div class="flex-grow-1">
+                <p id="systemToastBody" class="mb-0 fw-semibold text-dark small" style="line-height: 1.4;">
+                    <!-- Mensaje dinámico -->
+                </p>
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- ... (Mantenemos los toasts de ayuda y soporte) ... -->
+    <div id="helpToast" class="toast hide shadow-lg border-0 mb-3" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-primary text-white border-0 py-3">
+            <i class="bi bi-question-circle me-2"></i>
+            <strong class="me-auto">Consultas y Dudas</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body p-4 bg-white text-dark small"> pablito.silvainca@@gmail.com | +51 922 323 921 </div>
+    </div>
+
+    <div id="supportToast" class="toast hide shadow-lg border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-primary text-white border-0 py-3">
+            <i class="bi bi-headset me-2"></i>
+            <strong class="me-auto">Soporte Técnico</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body p-4 bg-white text-dark small"> pablito.silvainca@@gmail.com | +51 922 323 921 </div>
+    </div>
+</div>
+
+<script>
+    function showSystemNotification(message, type) {
+        var toastEl = document.getElementById('systemToast');
+        var wrapper = document.getElementById('systemToastWrapper');
+        var body = document.getElementById('systemToastBody');
+        var icon = document.getElementById('systemToastIcon');
+
+        // Reset & Configuracion Dinámica
+        icon.className = 'bi me-2 fs-4';
+        let autoHide = true;
+        let delay = 4000;
+
+        if (type === 'success') {
+            wrapper.style.borderLeftColor = '#198754';
+            wrapper.style.backgroundColor = '#e8f5e9';
+            icon.classList.add('bi-check-circle-fill');
+            icon.style.color = '#198754';
+        } else if (type === 'error') {
+            wrapper.style.borderLeftColor = '#dc3545';
+            wrapper.style.backgroundColor = '#fdecea';
+            icon.classList.add('bi-exclamation-triangle-fill');
+            icon.style.color = '#dc3545';
+        } else if (type === 'info') {
+            // Estilo EXACTO a la imagen enviada por el usuario
+            wrapper.style.borderLeftColor = '#0d47a1';
+            wrapper.style.backgroundColor = '#e3f2fd';
+            icon.classList.add('bi-info-circle-fill');
+            icon.style.color = '#0d47a1';
+            autoHide = false; // REGLA: No cerrar automáticamente para info de sesión
+        }
+
+        body.innerText = message;
+        var toast = new bootstrap.Toast(toastEl, { autohide: autoHide, delay: delay });
+        toast.show();
+    }
+
+    function showSupportToast() { new bootstrap.Toast(document.getElementById('supportToast')).show(); }
+    function showHelpToast() { new bootstrap.Toast(document.getElementById('helpToast')).show(); }
+</script>

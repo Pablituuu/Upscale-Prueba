@@ -1,0 +1,13 @@
+:root {
+    --primary-red: #8B1D21;
+    --light-bg: #F4F7F6;
+    --text-muted: #6C757D;
+    --border-color: #E9ECEF;
+    --active-blue: #0056B3;
+    --light-blue: #9eb5d8;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--light-bg);
+}

@@ -1,0 +1,24 @@
+<div class="sidebar">
+    <!-- Icono de Menú Hamburguesa (Siempre arriba) -->
+    <i class="bi bi-list fs-3 mb-4" style="cursor: pointer;"></i>
+    
+    <!-- Perfil (Casita) -->
+    <a href="/Account/Profile" class="sidebar-item" title="Mi Perfil">
+        <i class="bi bi-house shadow-sm @(Context.Request.Path == "/Account/Profile" ? "active" : "")"></i>
+    </a>
+
+    <!-- Gestión de Usuarios (Solo para Admin) -->
+    @if (User.Identity?.Name == "admin")
+    {
+        <a href="/Admin/Users" class="sidebar-item" title="Gestión de Usuarios">
+            <i class="bi bi-people shadow-sm @(Context.Request.Path == "/Admin/Users" ? "active" : "")"></i>
+        </a>
+    }
+</div>
+
+<style>
+    .sidebar-item { text-decoration: none; color: inherit; display: block; margin-bottom: 25px; }
+    .sidebar-item i { transition: 0.3s; padding: 10px; border-radius: 8px; }
+    .sidebar-item i:hover { background: #f0f4f8; color: #2B58A4; }
+    .sidebar-item i.active { background: #2B58A4; color: white !important; }
+</style>

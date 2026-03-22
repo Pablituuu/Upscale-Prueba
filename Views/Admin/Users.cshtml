@@ -1,0 +1,352 @@
+@using UpscaleWeb.Models
+@using System.Text.Json
+@model List<UpscaleWeb.Controllers.UserAdminViewModel>
+@{
+    Layout = null;
+    var adminProfile = ViewBag.AdminProfile as UsuariosDetalle;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Usuarios - Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
+    <style>
+        .header-red-top { margin-left: 70px; }
+        .main-profile-content { 
+            margin-left: 70px; 
+            background-image: url('/img/backgrounds/Illustration.png'); 
+            background-size: 100% 50%; /* Ocupa solo la mitad del alto */
+            background-position: center bottom; 
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        @@media (max-width: 768px) {
+            .header-red-top { margin-left: 0 !important; }
+            .main-profile-content { margin-left: 0 !important; }
+        }
+        .btn-plus-user { background-color: #2B58A4; color: white; border-radius: 50px; padding: 8px 25px; transition: 0.3s; border: none; font-weight: 500; text-decoration: none; cursor: pointer; }
+        .btn-plus-user:hover { background-color: #1e3d73; color: white; transform: scale(1.05); }
+        .modal-body label { color: #555; font-size: 0.8rem; }
+        .form-control-sm-custom { border-radius: 8px; font-size: 0.9rem; padding: 8px 12px; }
+        input[readonly] { background-color: #f0f4f8 !important; color: #2B58A4; font-weight: bold; }
+        .required-mark { color: #dc3545; margin-left: 3px; }
+        .user-clickable { color: #2B58A4; text-decoration: none; font-weight: 600; cursor: pointer; }
+        .user-clickable:hover { text-decoration: underline; color: #1e3d73; }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column" style="min-height: 100vh; overflow-x: hidden;">
+
+    <partial name="_Sidebar" />
+    <partial name="_HeaderRed" model="adminProfile" />
+
+    <div class="main-profile-content flex-grow-1 d-flex flex-column" style="min-height: calc(100vh - 60px); padding: 0 !important;">
+        
+        <div class="content-padding flex-grow-1" style="padding: 30px 50px;">
+            <p class="text-muted small mb-1">Administración</p>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="fs-4 fw-bold m-0 d-flex align-items-center" style="color: #333;">
+                    <i class="bi bi-shield-check text-primary me-2"></i>Gestión de Usuarios
+                    <i class="bi bi-info-circle ms-3" style="font-size: 0.9rem; cursor: pointer; color: #7B818A;" 
+                       data-bs-toggle="tooltip" data-bs-placement="right" 
+                       title="Contraseña por defecto corporativa: Upscale2026"></i>
+                </h1>
+                
+                <button type="button" class="btn-plus-user" onclick="openModalForCreate()">
+                    <i class="bi bi-person-plus-fill me-2"></i> Nuevo Usuario
+                </button>
+            </div>
+
+            <!-- Tabla de Usuarios -->
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="p-4 small text-muted text-uppercase">Usuario</th>
+                                <th class="p-4 small text-muted text-uppercase">Nombre completo</th>
+                                <th class="p-4 small text-muted text-uppercase">Email</th>
+                                <th class="p-4 small text-muted text-uppercase">Rol</th>
+                                <th class="p-4 small text-muted text-uppercase text-center">Contraseña</th>
+                                <th class="p-4 small text-muted text-uppercase text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in Model)
+                            {
+                                var jsonUser = JsonSerializer.Serialize(u);
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <a href="javascript:void(0)" class="user-clickable" onclick='openModalForEdit(@Html.Raw(jsonUser))'>
+                                            @u.Username
+                                        </a>
+                                    </td>
+                                    <td class="px-4 py-3 text-dark">@u.NombreCompleto</td>
+                                    <td class="px-4 py-3 text-muted small">@u.Email</td>
+                                    <td class="px-4 py-3">
+                                        <span class="badge border border-primary border-opacity-25 text-primary bg-light px-3 py-2">
+                                            @u.Rol
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if(u.RequiereCambio) {
+                                            <span class="badge bg-warning text-dark px-3 py-2"><i class="bi bi-key-fill me-1"></i> Temporal</span>
+                                        } else {
+                                            <span class="badge bg-success text-white px-3 py-2"><i class="bi bi-shield-lock-fill me-1"></i> Segura</span>
+                                        }
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm" onclick="resetPassword('@u.Username')">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Reiniciar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer class="bg-white border-top py-2 px-3 px-md-5 mt-auto">
+            <partial name="_FooterLogos" />
+        </footer>
+    </div>
+
+    <!-- MODAL NUEVO/EDITAR USUARIO -->
+    <div class="modal fade" id="userFormModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow" style="border-radius: 15px;">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="modalTitle">
+                        <i class="bi bi-person-badge-fill text-primary me-2"></i>Registrar Perfil Completo
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 pt-2">
+                    <form id="userForm" class="needs-validation" novalidate>
+                        <input type="hidden" name="usuarioId" id="field-usuarioId" />
+
+                        <h6 class="text-primary fw-bold mb-3 border-bottom pb-2" style="font-size: 0.9rem;">Cuenta y Sistema</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Username (Login)</label>
+                                <input name="username" id="usernameField" class="form-control form-control-sm-custom" readonly required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Rol<span class="required-mark">*</span></label>
+                                <select name="rol" id="field-rol" class="form-select form-control-sm-custom" required>
+                                    <option value="Usuario">Usuario General</option>
+                                    <option value="Administrador">Administrador</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Sede / Entidad<span class="required-mark">*</span></label>
+                                <input name="entidad" id="field-entidad" class="form-control form-control-sm-custom" required placeholder="ej. Sede Central" />
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary fw-bold mb-3 border-bottom pb-2" style="font-size: 0.9rem;">Información Personal e Identidad</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Nombres<span class="required-mark">*</span></label>
+                                <input name="nombres" id="field-nombres" class="form-control form-control-sm-custom" required oninput="handleOnInput()" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Primer Apellido<span class="required-mark">*</span></label>
+                                <input name="primerApellido" id="field-primerApellido" class="form-control form-control-sm-custom" required oninput="handleOnInput()" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Segundo Apellido<span class="required-mark">*</span></label>
+                                <input name="segundoApellido" id="field-segundoApellido" class="form-control form-control-sm-custom" required oninput="handleOnInput()" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Tipo Doc.<span class="required-mark">*</span></label>
+                                <select name="tipoDocumento" id="field-tipoDocumento" class="form-select form-control-sm-custom" required>
+                                    <option value="DNI">DNI</option>
+                                    <option value="C.E.">C.E.</option>
+                                    <option value="PTP">PTP</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">N° Documento<span class="required-mark">*</span></label>
+                                <input name="numeroDocumento" id="field-numeroDocumento" class="form-control form-control-sm-custom" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Fecha Nacimiento<span class="required-mark">*</span></label>
+                                <input type="date" name="fechaNacimiento" id="field-fechaNacimiento" class="form-control form-control-sm-custom" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Nacionalidad<span class="required-mark">*</span></label>
+                                <input name="nacionalidad" id="field-nacionalidad" class="form-control form-control-sm-custom" required placeholder="ej. Peruana" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Sexo<span class="required-mark">*</span></label>
+                                <select name="sexo" id="field-sexo" class="form-select form-control-sm-custom" required>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="fw-bold mb-1">Teléfono Móvil<span class="required-mark">*</span></label>
+                                <input name="telefonoMovil" id="field-telefonoMovil" class="form-control form-control-sm-custom" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold mb-1">Correo Principal<span class="required-mark">*</span></label>
+                                <input type="email" name="emailPrincipal" id="field-emailPrincipal" class="form-control form-control-sm-custom" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fw-bold mb-1">Correo Secundario (Opcional)</label>
+                                <input type="email" name="emailSecundario" id="field-emailSecundario" class="form-control form-control-sm-custom" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold mb-1">Teléfono Sec. (Opcional)</label>
+                                <input name="telefonoSecundario" id="field-telefonoSecundario" class="form-control form-control-sm-custom" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold mb-1">Contratación<span class="required-mark">*</span></label>
+                                <select name="tipoContratacion" id="field-tipoContratacion" class="form-select form-control-sm-custom" required>
+                                    <option value="Tercero">Tercero</option>
+                                    <option value="CAS">CAS</option>
+                                    <option value="Nombrado">Nombrado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="fw-bold mb-1">F. Contratación<span class="required-mark">*</span></label>
+                                <input type="date" name="fechaContratacion" id="field-fechaContratacion" class="form-control form-control-sm-custom" required />
+                            </div>
+                        </div>
+                    </form>
+                    <div id="passwordAlert" class="alert alert-warning py-2 small mb-0 mt-4 d-flex align-items-center rounded-3">
+                        <i class="bi bi-shield-lock-fill me-2 fs-5 text-primary"></i>
+                        <div><b>Seguridad:</b> La clave NO se edita desde aquí por seguridad del usuario.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold" id="submitBtn" onclick="saveUser()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <partial name="_SoporteToasts" />
+    <partial name="_SessionTimeout" />
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Inicializar Tooltips de Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        const userModal = new bootstrap.Modal(document.getElementById('userFormModal'));
+        let isEditMode = false;
+
+        function handleOnInput() {
+            if (!isEditMode) generateUsername();
+        }
+
+        function generateUsername() {
+            const nomInput = document.getElementById('field-nombres').value.trim();
+            const pApeInput = document.getElementById('field-primerApellido').value.trim();
+            const sApeInput = document.getElementById('field-segundoApellido').value.trim();
+
+            if (nomInput && pApeInput && sApeInput) {
+                const nom = nomInput.split(' ')[0].toLowerCase();
+                const pApe = pApeInput.toLowerCase();
+                const sApeChar = sApeInput.charAt(0).toLowerCase();
+                
+                const rawUser = `${nom}.${pApe}${sApeChar}`;
+                const cleanUser = rawUser.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9.]/g, "");
+                document.getElementById('usernameField').value = cleanUser;
+            } else {
+                document.getElementById('usernameField').value = "";
+            }
+        }
+
+        function openModalForCreate() {
+            isEditMode = false;
+            document.getElementById('userForm').reset();
+            document.getElementById('userForm').classList.remove('was-validated');
+            document.getElementById('field-usuarioId').value = "";
+            document.getElementById('modalTitle').innerHTML = '<i class="bi bi-person-plus-fill text-primary me-2"></i>Registrar Perfil Completo';
+            document.getElementById('submitBtn').innerText = "Crear Nuevo Usuario";
+            userModal.show();
+        }
+
+        function openModalForEdit(u) {
+            isEditMode = true;
+            document.getElementById('userForm').classList.remove('was-validated');
+            
+            document.getElementById('field-usuarioId').value = u.UsuarioId;
+            document.getElementById('usernameField').value = u.Username;
+            document.getElementById('field-rol').value = u.Rol;
+            document.getElementById('field-entidad').value = u.Entidad;
+            document.getElementById('field-nombres').value = u.Nombres;
+            document.getElementById('field-primerApellido').value = u.PrimerApellido;
+            document.getElementById('field-segundoApellido').value = u.SegundoApellido;
+            document.getElementById('field-tipoDocumento').value = u.TipoDocumento;
+            document.getElementById('field-numeroDocumento').value = u.NumeroDocumento;
+            document.getElementById('field-fechaNacimiento').value = u.FechaNacimientoStr;
+            document.getElementById('field-nacionalidad').value = u.Nacionalidad;
+            document.getElementById('field-sexo').value = u.Sexo;
+            document.getElementById('field-emailPrincipal').value = u.Email;
+            document.getElementById('field-emailSecundario').value = u.EmailSecundario || "";
+            document.getElementById('field-telefonoMovil').value = u.TelefonoMovil;
+            document.getElementById('field-telefonoSecundario').value = u.TelefonoSecundario || "";
+            document.getElementById('field-tipoContratacion').value = u.TipoContratacion;
+            document.getElementById('field-fechaContratacion').value = u.FechaContratacionStr;
+
+            document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil-square text-primary me-2"></i>Editar Perfil: ' + u.Username;
+            document.getElementById('submitBtn').innerText = "Actualizar Información";
+            userModal.show();
+        }
+
+        async function saveUser() {
+            const form = document.getElementById('userForm');
+            if (!form.checkValidity()) { 
+                form.classList.add('was-validated'); 
+                showSystemNotification("Complete todos los campos requeridos.", "warning");
+                return; 
+            }
+
+            const fd = new FormData(form);
+            const url = isEditMode ? '/Admin/UpdateUser' : '/Admin/CreateUser';
+            
+            const response = await fetch(url, { method: 'POST', body: fd });
+            const result = await response.json();
+
+            if (result.success) {
+                userModal.hide();
+                showSystemNotification(isEditMode ? "Información actualizada con éxito." : "Usuario creado con éxito.", "success");
+                setTimeout(() => location.reload(), 2000);
+            } else {
+                showSystemNotification(result.message, "error");
+            }
+        }
+
+        async function resetPassword(username) {
+            if (!confirm(`¿Estás seguro de restablecer la contraseña para ${username}?`)) return;
+            const response = await fetch('/Admin/ResetPassword', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `username=${username}`
+            });
+            const result = await response.json();
+            if (result.success) {
+                showSystemNotification("Clave temporal generada: Upscale2026", "info");
+                setTimeout(() => location.reload(), 3000);
+            } else {
+                showSystemNotification(result.message, "error");
+            }
+        }
+    </script>
+</body>
+</html>

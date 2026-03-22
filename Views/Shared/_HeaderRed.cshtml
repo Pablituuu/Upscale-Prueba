@@ -1,0 +1,54 @@
+@{
+    var usuario = Model as UpscaleWeb.Models.UsuariosDetalle;
+}
+
+<script src="~/js/UserStore.js" asp-append-version="true"></script>
+
+<!-- Header reutilizable: Sin márgenes fijos para evitar afectar al Login -->
+<div class="header-red-top d-flex align-items-center justify-content-end px-4 shadow-sm" 
+     style="height: 60px; background-color: var(--primary-red); position: relative; z-index: 999;">
+    
+    <!-- Icono de Ayuda -->
+    <div onclick="showHelpToast()" style="cursor: pointer;" class="me-3 help-icon-header">
+        <i class="bi bi-question-lg fs-4 fw-bold text-white"></i>
+    </div>
+
+    @if (usuario != null)
+    {
+        <div class="d-flex align-items-center gap-3">
+            <div class="position-relative me-2" style="cursor: pointer;">
+                <i class="bi bi-bell fs-5 text-white"></i>
+                <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-primary border border-light" style="font-size: 0.6rem; padding: 2px 4px;">9+</span>
+            </div>
+
+            <div class="text-end text-white pe-1 d-none d-sm-block" style="line-height: 1.1;">
+                <p class="mb-0 fw-bold" style="font-size: 0.85rem;">@usuario.NombresCompletoCabecera</p>
+                <p class="mb-0 opacity-75" style="font-size: 0.75rem;">@usuario.Rol</p>
+            </div>
+
+            <div class="avatar-header d-flex align-items-center">
+                <i class="bi bi-person-circle fs-2 text-white"></i>
+            </div>
+
+            <a asp-controller="Account" asp-action="Logout" title="Cerrar Sesión" class="text-white ms-2 text-decoration-none logout-btn" onclick="UserStore.clear()">
+                <i class="bi bi-box-arrow-right fs-4"></i>
+            </a>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                UserStore.save({
+                    nombre: "@usuario.NombresCompletoCabecera",
+                    rol: "@usuario.Rol",
+                    id: "@usuario.UsuarioId"
+                });
+            });
+        </script>
+    }
+</div>
+
+<style>
+    .header-red-top .bi-question-lg:hover { opacity: 0.8; }
+    .logout-btn:hover { color: #ffcccc !important; transform: scale(1.1); transition: all 0.2s; }
+    .help-icon-header:hover { transform: scale(1.1); transition: all 0.2s; }
+</style>
