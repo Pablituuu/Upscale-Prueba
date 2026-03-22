@@ -21,33 +21,36 @@ Este repositorio contiene la implementación técnica para el proceso de selecci
 
 ## 🛠️ Instrucciones de Instalación y Despliegue
 
-Sigue estos pasos para levantar el proyecto en tu entorno local:
-
-### 1. Requisitos Previos
-*   [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) instalado.
-*   [SQL Server](https://www.microsoft.com/es-es/sql-server/sql-server-downloads) Express o Developer Edition.
-*   [Entity Framework Core Tools](https://learn.microsoft.com/es-es/ef/core/cli/dotnet) (`dotnet tool install --global dotnet-ef`).
-
-### 2. Configuración de Base de Datos
-1.  Abre el archivo `appsettings.json` y ajusta la cadena de conexión `DefaultConnection` con tus credenciales de SQL Server local.
-2.  Ejecuta las migraciones para crear la estructura de tablas:
+### 🐳 Opción 1: Docker Compose (Recomendado)
+Levanta todo el entorno (Base de Datos + App) con un solo comando:
+1.  Asegúrate de tener **Docker** y **Docker Compose** instalados.
+2.  En la raíz del proyecto, ejecuta:
     ```bash
-    dotnet ef database update
+    docker-compose up --build -d
     ```
+3.  La aplicación estará disponible en `http://localhost:8080`.
+4.  Para crear la estructura inicial, ejecuta el script `add_col.sql` en el servidor SQL (`localhost:1433`) desde DBeaver.
 
-### 3. Ejecución del Proyecto
-Desde la raíz de la carpeta del proyecto, ejecuta:
-```bash
-dotnet run
-```
-La aplicación estará disponible en `https://localhost:5001` (o el puerto configurado por defecto).
+### 💻 Opción 2: Ejecución Local (.NET SDK)
+1.  **Requisitos:** .NET 8 SDK y SQL Server local.
+2.  **Seguridad:** Para no exponer credenciales en GitHub, configura tu conexión local mediante **User Secrets**:
+    ```bash
+    dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=UpscaleDB;User Id=sa;Password=TU_PASSWORD;TrustServerCertificate=True"
+    ```
+3.  **Base de Datos:**
+    *   Ejecuta las migraciones: `dotnet ef database update`
+    *   O ejecuta el script `add_col.sql` para tener al usuario `admin` de prueba.
+4.  **Ejecución:**
+    ```bash
+    dotnet run
+    ```
+    La app estará en `https://localhost:5001`.
 
-### 4. Credenciales de Acceso (Admin por Defecto)
-El sistema incluye un usuario administrador inicial para facilitar la evaluación:
+### 🔑 Credenciales de Acceso (Admin)
 *   **Usuario:** `admin`
 *   **Contraseña:** `Upscale2026`
+*   *Nota: Estas credenciales se inyectan mediante el script `add_col.sql`.*
 
-_Nota: Si prefieres no usar migraciones, puedes ejecutar el script completo `add_col.sql` directamente en tu servidor SQL para crear la estructura e inyectar el administrador._
 
 ---
 

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql_upscale_db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_PASSWORD}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    networks:
+      - upscale-network
+
+  app:
+    build: .
+    container_name: upscale_web_front
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Usamos variables de entorno para que el secreto no esté en el repositorio
+      - ConnectionStrings__DefaultConnection=Server=db;Database=UpscaleDB;User Id=sa;Password=${MSSQL_PASSWORD};TrustServerCertificate=True
+    depends_on:
+      - db
+    restart: always
+    networks:
+      - upscale-network
+
+networks:
+  upscale-network:
+    driver: bridge

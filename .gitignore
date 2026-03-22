@@ -21,4 +21,5 @@ secrets.json
 
 # End of line characters normalization
 [Bb]in/
-[Oo]bj/
+# Environment variables
+.env
