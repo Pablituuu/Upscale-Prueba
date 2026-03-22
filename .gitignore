@@ -1,4 +1,24 @@
+# .NET built artifacts
 bin/
 obj/
-appsettings.Development.json
+/publish
+
+# Visual Studio / VS Code
+.vs/
 .vscode/
+*.user
+*.userosscache
+*.sln.docstates
+
+# Secrets and local config (ASP.NET Core)
+appsettings.Development.json
+secrets.json
+
+# Logs and user-specific files
+*.log
+*.tmp
+.DS_Store
+
+# End of line characters normalization
+[Bb]in/
+[Oo]bj/
