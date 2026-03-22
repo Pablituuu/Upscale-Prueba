@@ -22,6 +22,68 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 var app = builder.Build();
 
+// =========================================================
+// SEEDER: Crear o resetear el usuario admin automáticamente
+// =========================================================
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<UpscalePruebaContext>();
+    try
+    {
+        db.Database.EnsureCreated();
+
+        var adminCuenta = db.Cuentas.FirstOrDefault(c => c.Username == "admin");
+        if (adminCuenta == null)
+        {
+            // Crear detalle del admin
+            var detalle = new UsuariosDetalle
+            {
+                Estado = true,
+                NombresCompletoCabecera = "Administrador del Sistema",
+                Rol = "Administrador",
+                Entidad = "Upscale HQ",
+                Nombres = "Admin",
+                PrimerApellido = "Upscale",
+                SegundoApellido = "System",
+                TipoDocumento = "DNI",
+                NumeroDocumento = "00000000",
+                EmailPrincipal = "admin@upscale.com.pe",
+                Nacionalidad = "Peruana",
+                Sexo = "M"
+            };
+            db.UsuariosDetalles.Add(detalle);
+            db.SaveChanges();
+
+            var cuenta = new Cuenta
+            {
+                Username = "admin",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Upscale2026"),
+                UsuarioDetalleId = detalle.UsuarioId,
+                IntentosFallidos = 0,
+                RequiereCambioPassword = false
+            };
+            db.Cuentas.Add(cuenta);
+            db.SaveChanges();
+            Console.WriteLine(">>> SEEDER: Usuario admin CREADO exitosamente.");
+        }
+        else
+        {
+            // Solo resetear bloqueo si está bloqueado (no tocamos la clave)
+            if (adminCuenta.IntentosFallidos > 0 || adminCuenta.BloqueadoHasta != null)
+            {
+                adminCuenta.IntentosFallidos = 0;
+                adminCuenta.BloqueadoHasta = null;
+                db.SaveChanges();
+            }
+            Console.WriteLine(">>> SEEDER: Usuario admin ya existe, OK.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($">>> SEEDER ERROR: {ex.Message}");
+    }
+}
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

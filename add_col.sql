@@ -3,6 +3,15 @@
 -- Proyecto: UpscaleWeb - Prueba Técnica
 -- =============================================
 
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'UpscaleDB')
+BEGIN
+    CREATE DATABASE UpscaleDB;
+END
+GO
+USE UpscaleDB;
+GO
+
+
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -91,7 +100,7 @@ BEGIN
     DECLARE @AdminId int = SCOPE_IDENTITY();
 
     INSERT INTO [Cuentas] ([Username], [PasswordHash], [UsuarioDetalleId], [RequiereCambioPassword])
-    VALUES ('admin', '$2a$11$R9h/lIPzHZluvJum65wLUOg9m30JtTjUp4W6U39O6X19p9XG6O5pG', @AdminId, 0);
+    VALUES ('admin', '$2a$11$NWuxoXZt1imWNN0WBXimpOexNdq7edDfDXvupNkUiTRKfykK5nmJW', @AdminId, 0);
 END;
 GO
 
